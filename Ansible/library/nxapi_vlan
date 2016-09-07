@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+
+import xmltodict
+import json
+import yaml
+import sys
+from device import Device
+
+	
+def getVLAN(device, vid):
+
+	command = 'show vlan id ' + vid
+	
+	#command = 'show vlan'
+	
+	data = device.show(command)
+	result = xmltodict.parse(data[1])
+
+	msg = {}
+	msg['return_code'] = result['ins_api']['outputs']['output']['code']
+	msg['return_message'] = result['ins_api']['outputs']['output']['msg']
+	
+	vlan = {}
+	if msg['return_message'] == 'Success' and msg['return_code'] == '200':
+
+		try:
+			each = result['ins_api']['outputs']['output']['body']['TABLE_vlanbriefid']['ROW_vlanbriefid']
+
+			vlan['vid'] = each['vlanshowbr-vlanid-utf']
+			vlan['name'] = each['vlanshowbr-vlanname']
+			vlan['vlan_state'] = each['vlanshowbr-vlanstate']
+			vlan['shut_state'] = each['vlanshowbr-shutstate']
+
+		except:
+			each = 'NO VLAN EXISTS WITH THAT ID'
+		
+		'''
+		vlan_list = result['ins_api']['outputs']['output']['body']['TABLE_vlanbrief']['ROW_vlanbrief']
+		
+		for each in vlan_list:
+			if each['vlanshowbr-vlanid-utf'] == vid:
+				vlan['vid'] = each['vlanshowbr-vlanid-utf']
+				vlan['name'] = each['vlanshowbr-vlanname']
+				vlan['vlan_state'] = each['vlanshowbr-vlanstate']
+				vlan['shut_state'] = each['vlanshowbr-shutstate']
+		'''
+		
+	return vlan
+
+def main():
+
+	module = AnsibleModule(
+		argument_spec = dict(
+			vlan_id=dict(required=True, type='str'),
+			name=dict(default=None),
+			vlan_state=dict(default='active',
+				choices=['active','suspend']),
+			state=dict(default='present',
+				choices=['present','absent']),
+			shut_state=dict(default='noshutdown',
+				choices=['shutdown', 'noshutdown']),
+			device=dict(required=True),
+			username=dict(default='cisco'),
+			password=dict(default='!cisco123!'),
+		),
+		supports_check_mode=False
+	)	
+	result = dict(changed=False, created=False)
+
+	device = module.params['device']
+	un = module.params['username']
+	pw = module.params['password']
+	
+	nxDev1 = Device(ip=device,username=un,password=pw)
+	nxDev1.open() 
+
+	#vid = '10' 
+	#name = 'web=web111'  
+	#state = 'present' #present or absent, default value to be present
+	#vlan_state = 'active'  #active or suspend, default value to be active
+	#shut_state = None  #shutdown or noshutdown, default value to be noshutdown
+
+	vid = module.params['vlan_id']
+	name = module.params['name']
+	vlan_state = module.params['vlan_state']
+	shut_state = module.params['shut_state']
+
+	state = module.params['state']
+
+	new_vlan = {
+		'vid': vid,
+		'name': name,
+		'vlan_state': vlan_state,
+		'shut_state': shut_state,
+	}
+
+	#print 'NEW:'
+	#print json.dumps(new_vlan,indent=4)
+
+	current_vlan = getVLAN(nxDev1,vid)
+
+	#print 'EXISTING:'
+	#print json.dumps(current_vlan, indent=4)
+	
+	changeset = set(new_vlan.iteritems()).difference(current_vlan.iteritems())
+
+	#print changeset
+	commands = []
+	
+	if state == 'absent' and current_vlan:
+		command = 'no vlan ' + vid
+		commands.append(command)
+	
+	elif state == 'present':
+		
+		for key, value in changeset:
+			if key == 'vid':
+				result['created'] = True
+			if value is not None:
+				if key == 'name':
+					command = 'name ' + value
+				elif key == 'vlan_state':
+					command = 'state ' + value
+				elif key == 'shut_state':
+					if value == 'noshutdown':
+						command = 'no shutdown'
+					elif value == 'shutdown':
+						command = 'shutdown'
+		
+				if command:
+					commands.append(command)
+					command = None
+		
+		if commands:
+			commands.insert(0,'vlan ' + vid)
+	
+	#print commands
+
+	if commands:		
+		cmd = ' ; '.join(commands)
+		nxDev1.conf(cmd)	
+		result['changed'] = True
+	else:
+		cmd = 'No command(s) sent to device.'
+
+	result['resource'] = getVLAN(nxDev1,vid)
+	result['current_resource'] = current_vlan
+	result['new_resource'] = new_vlan
+	result['commands'] = cmd
+	result['state'] = state
+
+	#print json.dumps(result, indent=4)
+
+	
+	module.exit_json(**result)
+	
+	
+from ansible.module_utils.basic import *  
+main()

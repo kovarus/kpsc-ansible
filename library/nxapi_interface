@@ -1,0 +1,184 @@
+#!/usr/bin/env python
+
+# interface description is not returned with show interface command for SVIs
+# making that a non idempotent variable b/c it always thinks it's not set
+# SVIs are only up if an interface is in the VLAN, so the "shutdown" of the SVI
+# may not be idempotent either based on the deployment process
+
+import xmltodict
+import json
+import yaml
+import sys
+from device import Device
+
+
+def get_type(interface):
+    if interface.upper().startswith('ET'):
+        return 'ethernet'
+    elif interface.upper().startswith('VL'):
+        return 'svi'
+    elif interface.upper().startswith('LO'):
+        return 'loopback'
+    else:
+        return 'unknown'
+
+
+def get_admin_state(result, intf_type):
+    if intf_type == 'ethernet':
+        if result['admin_state'] == 'down':
+            state = 'shutdown'
+        else:
+            state = 'no_shutdown'
+    elif intf_type == 'loopback':
+        if result['state'] == 'down':
+            state = 'shutdown'
+        elif result['state'] == 'up':
+            state = 'no_shutdown'
+    elif intf_type == 'svi':
+        if result['svi_admin_state'] == 'down':
+            state = 'shutdown'
+        elif result['svi_admin_state'] == 'up':
+            state = 'no_shutdown'
+
+    return state
+
+
+def get_interface(device, interface):
+    intf = {}
+    try:
+        info = device.show('show interface ' + interface)
+        data = xmltodict.parse(info[1])
+        result = data['ins_api']['outputs']['output']['body']['TABLE_interface']['ROW_interface']
+
+        intf = {
+            'interface': interface,
+            'config_state': 'configured'
+        }
+
+        intf['admin_state'] = get_admin_state(result, get_type(interface))
+
+        if 'desc' in result.keys():
+            intf['description'] = result['desc']
+        else:
+            intf['description'] = None
+
+        return intf
+    except:
+        return intf
+
+
+def get_commands(commands, interface):
+    commands.insert(0, 'interface ' + interface)
+    commands.insert(0, 'config t')
+    l = len(commands)
+    for e in commands:
+        if e.startswith('description'):
+            i = commands.index(e)
+            desc = commands.pop(i)
+            commands.insert(l - 1, desc)
+    return commands
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            interface=dict(required=True, type='str'),
+            admin_state=dict(default='no_shutdown',
+                             choices=['shutdown', 'no_shutdown']),
+            description=dict(type='str'),
+            config_state=dict(default='configured',
+                              choices=['configured', 'unconfigured', 'default']),
+            device=dict(required=True),
+            username=dict(default='cisco'),
+            password=dict(default='!cisco123!'),
+        ),
+        supports_check_mode=False
+    )
+
+    result = dict(changed=False, created=False)
+
+    device = module.params['device']
+    un = module.params['username']
+    pw = module.params['password']
+
+    nxDev1 = Device(ip=device, username=un, password=pw)
+    nxDev1.open()
+
+    interface = module.params['interface']
+    description = module.params['description']
+    admin_state = module.params['admin_state']
+    config_state = module.params['config_state']
+
+    intf_type = get_type(interface)
+
+    if intf_type == 'unknown':
+        module.exit_json(msg='unable to determine interface type')
+
+    new_resource = {
+        'interface': interface,
+        'admin_state': admin_state,
+        'description': description,
+    }
+
+    commands = []
+
+    current_resource = get_interface(nxDev1, interface)
+
+    if config_state == 'configured':
+
+        if not current_resource and intf_type in ['svi', 'loopback']:
+            nxDev1.conf('interface ' + interface)
+            create_resource = get_interface(nxDev1, interface)
+            command = 'interface ' + interface
+            result['created'] = True
+            result['changed'] = True
+
+        changeset = set(new_resource.iteritems()).difference(current_resource.iteritems())
+
+        for key, value in changeset:
+            if key == 'description':
+                command = 'description ' + value
+            elif key == 'admin_state':
+                if value == 'shutdown':
+                    command = 'shutdown'
+                else:
+                    command = 'no shutdown'
+
+            if command:
+                commands.append(command)
+                command = None
+
+    elif config_state == 'unconfigured':
+        # cannot unconfigure a physical interface so default it instead
+        if not interface.upper().startswith('ET'):
+            current = get_interface(nxDev1, interface)
+            if current is not None:
+                commands.append('no interface ' + interface)
+        else:
+            commands.append('default interface ' + interface)
+
+
+    elif config_state == 'default':
+        current = get_interface(nxDev1, interface)
+        if current is not None:
+            commands.append('default interface ' + interface)
+
+    if commands:
+        commands = get_commands(commands, interface)
+        cmd = ' ; '.join(commands)
+        nxDev1.conf(cmd)
+        result['changed'] = True
+    else:
+        cmd = 'No commands sent to device.'
+
+    result['resource'] = get_interface(nxDev1, interface)
+    result['current_resource'] = current_resource
+    result['new_resource'] = new_resource
+    result['commands'] = cmd
+
+    module.exit_json(**result)
+
+
+from ansible.module_utils.basic import *
+
+main()

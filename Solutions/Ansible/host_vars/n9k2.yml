@@ -1,0 +1,5 @@
+---
+
+hostname: NEXUS9K2
+
+mgmt_ip: 2.2.2.2/24

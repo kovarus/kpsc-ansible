@@ -1,2 +1,18 @@
-[lb]
-10.1.2.69 ansible_ssh_pass=password ansible_sudo_pass='!Passw0rd' ansible_ssh_user=root
+[all:vars]
+configdir=/Users/ldh/github.kovarus/kpsc-ansible/
+
+[nexus]
+n9k1
+n9k2
+n9k3
+n9k4
+n9k5
+n9k6
+n9k7
+n9k8
+n9k9 hostname=blarg mgmt_ip=1.1.1.1/24
+n9k10 hostname=foo mgmt_ip=2.2.2.2/24
+
+
+[switches]
+172.31.217.133

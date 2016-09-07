@@ -1,8 +1,0 @@
-- hosts: lb
-  remote_user: root
-  roles: [ansible-role-haproxy]
-  vars:
-    haproxy_backend_servers:
-    - - {address: '127.0.0.1:8080', name: app1}
-      - {address: '127.0.0.2:8080', name: app2}
-      - {address: '127.0.0.3:8080', name: app3}

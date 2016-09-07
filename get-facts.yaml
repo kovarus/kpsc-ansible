@@ -1,0 +1,15 @@
+---
+
+- name: get 9k facts
+  hosts: switches
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: get facts from device
+      nxapi_facts: device={{ inventory_hostname }} fact=type
+      register: my_facts
+
+    - debug: msg="{{ my_facts.status }}"
+
+

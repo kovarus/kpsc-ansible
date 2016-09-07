@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+#
+
+import xmltodict
+import json
+from device import Device
+from ansible.module_utils.basic import *
+
+def show_hardware(sw):
+    getdata = sw.show('show hardware')
+
+    show_hw_dict = xmltodict.parse(getdata[1])
+
+
+    data = show_hw_dict['ins_api']['outputs']['output']['body']
+    hw_dict = {}
+    hw_dict['os_version'] = data['kickstart_ver_str']
+    hw_dict['type'] = data['chassis_id']
+    hw_dict['memory'] = data['memory'] + data['mem_type']
+    hw_dict['hostname'] = data['host_name']
+    hw_dict['bootflash'] = data['bootflash_size']
+    hw_dict['last_reboot_reason'] = data['rr_reason']
+    hw_dict['uptime'] = '{} day(s) {} hour(s) {} min(s) {} sec(s)'.format(data['kern_uptm_days'], \
+                                                                          data['kern_uptm_hrs'], data['kern_uptm_mins'],
+                                                                          data['kern_uptm_secs'])
+
+    ser_nums = {}
+    ser_nums_data = show_hw_dict['ins_api']['outputs']['output']['body']['TABLE_slot'] \
+        ['ROW_slot']['TABLE_slot_info']['ROW_slot_info']
+
+    for each in ser_nums_data:
+
+        if 'serial_num' in each.keys():
+            key = each['serial_num']
+            ser_nums[key] = each['model_num']
+
+    hw_dict['serial_numbers'] = ser_nums
+
+    return hw_dict
+
+def show_intf_mgmt(sw):
+    getdata = sw.show('show interface mgmt0')
+
+    show_intf_dict = xmltodict.parse(getdata[1])
+
+    data = show_intf_dict['ins_api']['outputs']['output']['body']['TABLE_interface']['ROW_interface']
+
+    mgmt_dict = {'ip_addr': data['eth_ip_addr'] + '/' + data['eth_ip_mask'],
+             'name': data['interface'],
+             'speed': data['eth_speed'],
+             'duplex': data['eth_duplex']}
+
+    return mgmt_dict
+
+def main():
+    module = AnsibleModule(argument_spec=dict(device=dict(required=True),
+                                              fact=dict(required=True)),
+                           supports_check_mode=False)
+
+    ip_addr = module.params['device']
+    fact = module.params['fact']
+
+
+    switch = Device(ip=ip_addr, username='admin', password='cisco123')
+
+    switch.open()
+
+    facts = {}
+
+    intf = show_intf_mgmt(switch)
+    facts['mgmt_intf'] = intf
+
+    hw = show_hardware(switch)
+    facts.update(hw)
+
+    if fact == 'all':
+        msg = facts
+    else:
+        if fact in facts.keys():
+            msg = facts[fact]
+        else:
+            msg = 'Invalid Key.  Try again.'
+
+    module.exit_json(status=msg)
+
+main()
+
+

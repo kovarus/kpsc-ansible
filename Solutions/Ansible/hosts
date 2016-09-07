@@ -1,0 +1,15 @@
+[all:vars]
+configdir=/home/cisco/Training/Ansible/configs
+
+[nexus]
+n9k1
+n9k2
+n9k3
+n9k4
+n9k5
+n9k6 hostname=NEXUS9K6 mgmt_ip=6.6.6.6/24
+n9k7 hostname=NEXUS9K7 mgmt_ip=7.7.7.7/24
+
+[switches]
+192.168.200.50
+

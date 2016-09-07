@@ -1,0 +1,11 @@
+---
+
+- name: creating template based configuration
+  hosts: nexus
+  connection: local
+  gather_facts: no
+
+  tasks:
+
+    - name: building a config file
+      template: src=Templates/nexus9k.j2 dest={{ configdir }}/{{ inventory_hostname }}.cfg
