@@ -1,4 +1,0 @@
-- hosts: balancer
-  sudo: yes
-  roles:
-    - { role: geerlingguy.haproxy }

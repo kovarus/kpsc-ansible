@@ -1,1 +1,2 @@
 export ANSIBLE_HOSTS=`pwd`/hosts
+export ANSIBLE_HOST_KEY_CHECKING=False
