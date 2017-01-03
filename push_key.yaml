@@ -1,5 +1,5 @@
 ---
-- hosts: 10.80.5.21
+- hosts: all
   tasks:
   - name: install key
     authorized_key: user=root key="{{ lookup('file', '/Users/ldh/.ssh/id_rsa.pub') }}"

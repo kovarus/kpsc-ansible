@@ -14,12 +14,15 @@ n9k8
 n9k9 hostname=blarg mgmt_ip=1.1.1.1/24
 n9k10 hostname=foo mgmt_ip=2.2.2.2/24
 
+[kpsc-nexus]
+hq-sw1.kpsc.io
+hq-sw2.kpsc.io 
 
 [switches]
 172.31.217.133
 
 [lb]
-10.80.5.20
+10.80.5.20 user=root
 
 [webservers]
 10.80.5.21
@@ -29,3 +32,15 @@ n9k10 hostname=foo mgmt_ip=2.2.2.2/24
 [database]
 10.80.5.24
 10.80.5.25
+
+[pool1]
+10.80.5.26
+10.80.5.27
+
+[pool2]
+10.80.5.28
+10.80.5.29
+
+[pool3]
+10.80.5.30
+10.80.5.31

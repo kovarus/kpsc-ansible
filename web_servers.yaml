@@ -1,8 +1,9 @@
 ---
-- hosts: webservers
+- hosts: pool2
   vars:
     http_port: 80
-    document_root: /var/www/foo
+    document_root: /var/www/bar
+    this_comment_is_cool: "Blah"
   remote_user: root
   tasks:
   - name: ensure apache is at the latest version

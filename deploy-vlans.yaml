@@ -1,0 +1,11 @@
+---
+
+- name: deploy vlans to kpsc nexus switches
+  hosts: kpsc-nexus
+  connection: local
+  gather_facts: no
+
+  tasks:
+
+    - name: building a config file
+      template: src=Templates/vlans.j2 dest={{ configdir }}/{{ inventory_hostname }}.cfg

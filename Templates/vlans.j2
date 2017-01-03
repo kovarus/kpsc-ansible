@@ -1,0 +1,44 @@
+
+{% for vlan in vlans %}
+vlan {{ vlan.id }}
+{% if vlan.name %}
+  name {{ vlan.name }}
+  exit
+{% endif %} 
+{% endfor %}
+
+
+{% if inventory_hostname == "hq-sw1.kpsc.io" %}
+{% for vlan in vlans %}
+interface vlan{{ vlan.id }}
+  no shutdown
+  ip address 10.32.{{ vlan.layer3 }}.2/24
+  ip ospf network broadcast
+  ip ospf mtu-ignore
+  ip router ospf 1 area 0.0.0.0
+  hsrp version 2
+  hsrp {{ vlan.id }}
+    preempt
+    priority 110
+    timers 1 3
+    ip 10.32.{{ vlan.layer3 }}.1
+{% endfor %}
+{% elif inventory_hostname == "hq-sw2.kpsc.io" %}
+{% for vlan in vlans %}
+interface vlan{{ vlan.id }}
+  no shutdown
+  ip address 10.32.{{ vlan.layer3 }}.3/24
+  ip ospf network broadcast
+  ip ospf mtu-ignore
+  ip router ospf 1 area 0.0.0.0
+  hsrp version 2
+  hsrp {{ vlan.id }}
+    preempt
+    priority 100
+    timers 1 3
+    ip 10.32.{{ vlan.layer3 }}.1
+{% endfor %}
+{% else %}
+  boo
+{% endif %}
+

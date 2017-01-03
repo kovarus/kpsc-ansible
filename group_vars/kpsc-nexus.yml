@@ -1,0 +1,14 @@
+---
+
+vlans:
+  - { id: 600, name: inf-ucs-vlan600, layer3: 0 }
+  - { id: 601, name: inf-ucs-vlan601, layer3: 1 }
+  - { id: 602, name: inf-ucs-vlan602, layer3: 2 }
+  - { id: 603, name: inf-ucs-vlan603, layer3: 3 }
+  - { id: 604, name: inf-ucs-vlan604, layer3: 4 }
+  - { id: 605, name: inf-ucs-vlan605, layer3: 5 }
+  - { id: 606, name: inf-ucs-vlan606, layer3: 6 }
+  - { id: 607, name: inf-ucs-vlan607, layer3: 7 }
+  - { id: 608, name: inf-ucs-vlan608, layer3: 8 }
+  - { id: 609, name: inf-ucs-vlan609, layer3: 9 }
+
