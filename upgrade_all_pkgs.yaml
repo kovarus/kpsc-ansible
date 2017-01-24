@@ -1,3 +1,5 @@
+---
+- hosts: "{{ target }}"
 - name: upgrade all packages
   yum:
     name: '*'
