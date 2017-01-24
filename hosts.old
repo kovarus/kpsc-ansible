@@ -18,12 +18,16 @@ n9k10 hostname=foo mgmt_ip=2.2.2.2/24
 hq-sw1.kpsc.io
 hq-sw2.kpsc.io 
 
+[switches]
+172.31.217.133
 
 [lb]
 10.80.5.20 user=root
 
 [webservers]
-10.1.30.101 user=root
+10.80.5.21
+10.80.5.22
+10.80.5.23
 
 [database]
 10.80.5.24
