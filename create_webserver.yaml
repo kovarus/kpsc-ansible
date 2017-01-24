@@ -1,5 +1,5 @@
 ---
-- hosts: pool2
+- hosts: {{ target }}
   vars:
     http_port: 80
     document_root: /var/www/bar
