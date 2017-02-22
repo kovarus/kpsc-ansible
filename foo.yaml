@@ -1,5 +1,5 @@
 - hosts: all
-
+  name: blarg
   roles:
     - role: bennojoy.ntp
       ntp_server: [2.ubuntu.pool.ntp.org, 1.ubuntu.pool.ntp.org]
