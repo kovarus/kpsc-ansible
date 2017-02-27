@@ -11,5 +11,6 @@ vlans:
   - { id: 607, name: inf-ucs-vlan607, layer3: 7 }
   - { id: 608, name: inf-ucs-vlan608, layer3: 8 }
   - { id: 609, name: inf-ucs-vlan609, layer3: 9 }
-
+  - { id: 610, name: inf-ucs-vlan610, layer3: 10 }
+  - { id: 611, layer3: 11}
 

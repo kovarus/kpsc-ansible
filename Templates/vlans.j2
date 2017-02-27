@@ -1,8 +1,10 @@
 
 {% for vlan in vlans %}
 vlan {{ vlan.id }}
-{% if vlan.name %}
+{% if 'name' in vlan %}
   name {{ vlan.name }}
+  exit
+{% else %}
   exit
 {% endif %} 
 {% endfor %}
