@@ -1,0 +1,4 @@
+---
+username: ansible
+password: ansible
+transport: cli

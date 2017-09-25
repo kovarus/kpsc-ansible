@@ -18,15 +18,15 @@ n9k10 hostname=foo mgmt_ip=2.2.2.2/24
 hq-sw1.kpsc.io
 hq-sw2.kpsc.io 
 
+[nexus-switch]
+192.168.49.10 user=ansible gather_facts=False
 
 [lb]
-10.1.30.106 user=root
-10.1.30.105 
+10.44.2.50 user=root
 
 [webservers]
-10.1.30.101 user=root
-10.1.30.102 user=root
+10.16.0.136 user=root
+10.16.0.131 user=root
 
 [database]
-10.1.30.103
-10.1.30.104
+10.16.0.132

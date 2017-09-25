@@ -1,0 +1,196 @@
+---
+
+- name: command testing
+  hosts: nexus-switch
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - external_vars.yml
+
+  tasks:
+
+    - nxos_command: 
+        commands: show version
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - nxos_ospf:
+        ospf: 1
+        state: present
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - nxos_ntp:
+        server: 1.2.3.4
+        key_id: 32
+        prefer: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - name: Ensure VLAN 50 exists with the name WEB and is in the shutdown state
+      nxos_vlan:
+        vlan_id: 50
+        admin_state: up
+        name: WEB
+        transport: nxapi
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    # - name: Ensure ipv4 address is configured on VLAN 50
+    #   nxos_ip_interface:
+    #     interface: vlan50
+    #     transport: nxapi
+    #     version: v4
+    #     state: present
+    #     addr: 10.1.50.2
+    #     mask: 24
+    #     username: "{{ username }}"
+    #     password: "{{ password }}"
+
+    # - name: Ensure HSRP is configured with following params on a SVI
+    #   nxos_hsrp:
+    #     group: 50
+    #     vip: 10.1.50.1
+    #     priority: 150
+    #     interface: vlan50
+    #     preempt: enabled
+    #     username: "{{ username }}"
+    #     password: "{{ password }}"
+
+
+# - nxos_interface_ospf:
+#     interface: ethernet1/32
+#     ospf: 1
+#     area: 1
+#     cost: default
+
+# - name: Ensure ospf is disabled
+#   nxos_feature:
+#     feature: ospf
+#     state: disabled
+
+# - name: Ensure vpc is enabled
+#   nxos_feature:
+#     feature: vpc
+#     state: enabled
+
+# - name: "Radius Server Basic settings"
+#   nxos_aaa_server:
+#       server_type: radius
+#       server_timeout: 9
+#       deadtime: 20
+#       directed_request: enabled
+
+# # Tacacs Server Basic settings
+# - name: "Tacacs Server Basic settings"
+#   nxos_aaa_server:
+#       server_type: tacacs
+#       server_timeout: 8
+#       deadtime: 19
+#       directed_request: disabled
+
+# # Setting Global Key
+# - name: "AAA Server Global Key"
+#   nxos_aaa_server:
+#       server_type: radius
+#       global_key: test_key
+
+
+# - name: Ensure HSRP is configured with following params on a SVI
+#   nxos_hsrp:
+#     group: 10
+#     vip: 10.1.1.1
+#     priority: 150
+#     interface: vlan10
+#     preempt: enabled
+#     host: 68.170.147.165
+
+
+# - name: Ensure ipv4 address is configured on Ethernet1/32
+#   nxos_ip_interface:
+#     interface: Ethernet1/32
+#     transport: nxapi
+#     version: v4
+#     state: present
+#     addr: 20.20.20.20
+#     mask: 24
+
+# - name: Ensure ipv6 address is configured on Ethernet1/31
+#   nxos_ip_interface:
+#     interface: Ethernet1/31
+#     transport: cli
+#     version: v6
+#     state: present
+#     addr: '2001::db8:800:200c:cccb'
+#     mask: 64
+
+# - name: Ensure ipv4 address is configured with tag
+#   nxos_ip_interface:
+#     interface: Ethernet1/32
+#     transport: nxapi
+#     version: v4
+#     state: present
+#     tag: 100
+#     addr: 20.20.20.20
+#     mask: 24
+
+# - name: Configure ipv4 address as secondary if needed
+#   nxos_ip_interface:
+#     interface: Ethernet1/32
+#     transport: nxapi
+#     version: v4
+#     state: present
+#     allow_secondary: true
+#     addr: 21.21.21.21
+#     mask: 24
+
+# - nxos_ntp:
+#     server: 1.2.3.4
+#     key_id: 32
+#     prefer: enabled
+#     host: "{{ inventory_hostname }}"
+#     username: "{{ un }}"
+#     password: "{{ pwd }}"
+
+
+# - name: Ensure a range of VLANs are not present on the switch
+#   nxos_vlan:
+#     vlan_range: "2-10,20,50,55-60,100-150"
+#     state: absent
+#     transport: nxapi
+
+# - name: Ensure VLAN 50 exists with the name WEB and is in the shutdown state
+#   nxos_vlan:
+#     vlan_id: 50
+#     admin_state: down
+#     name: WEB
+#     transport: nxapi
+
+# - name: Ensure VLAN is NOT on the device
+#   nxos_vlan:
+#     vlan_id: 50
+#     state: absent
+#     transport: nxapi
+
+# - name: configure a simple asn
+#   nxos_vpc:
+#     domain: 100
+#     role_priority: 1000
+#     system_priority: 2000
+#     pkl_dest: 192.168.100.4
+#     pkl_src: 10.1.100.20
+#     peer_gw: true
+#     auto_recovery: true
+
+# - name: configure
+#   nxos_vpc:
+#     domain: 100
+#     role_priority: 32667
+#     system_priority: 2000
+#     peer_gw: true
+#     pkl_src: 10.1.100.2
+#     pkl_dest: 192.168.100.4
+#     auto_recovery: true
+
+
