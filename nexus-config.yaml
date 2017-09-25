@@ -15,6 +15,48 @@
         username: "{{ username }}"
         password: "{{ password }}"
 
+    - name: Ensure lacp is enabled
+      nxos_feature:
+        feature: lacp
+        state: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
+        
+    - name: Ensure ospf is enabled
+      nxos_feature:
+        feature: ospf
+        state: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"       
+
+    - name: Ensure vpc is enabled
+      nxos_feature:
+        feature: vpc
+        state: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - name: Ensure HSRP is enabled
+      nxos_feature:
+        feature: hsrp
+        state: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - name: Ensure SVIs are enabled
+      nxos_feature:
+        feature: interface-vlan
+        state: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - name: Ensure vpc is enabled
+      nxos_feature:
+        feature: vpc
+        state: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
+
     - nxos_ospf:
         ospf: 1
         state: present
@@ -37,26 +79,32 @@
         username: "{{ username }}"
         password: "{{ password }}"
 
-    # - name: Ensure ipv4 address is configured on VLAN 50
-    #   nxos_ip_interface:
-    #     interface: vlan50
-    #     transport: nxapi
-    #     version: v4
-    #     state: present
-    #     addr: 10.1.50.2
-    #     mask: 24
-    #     username: "{{ username }}"
-    #     password: "{{ password }}"
+    - name: Create an SVI for VLAN 50
+      nxos_interface:
+        interface: vlan50 
+        username: "{{ username }}"
+        password: "{{ password }}"
 
-    # - name: Ensure HSRP is configured with following params on a SVI
-    #   nxos_hsrp:
-    #     group: 50
-    #     vip: 10.1.50.1
-    #     priority: 150
-    #     interface: vlan50
-    #     preempt: enabled
-    #     username: "{{ username }}"
-    #     password: "{{ password }}"
+    - name: Ensure ipv4 address is configured on VLAN 50
+      nxos_ip_interface:
+        interface: vlan50
+        transport: nxapi
+        version: v4
+        state: present
+        addr: 10.1.50.2
+        mask: 24
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+    - name: Ensure HSRP is configured with following params on a SVI
+      nxos_hsrp:
+        group: 50
+        vip: 10.1.50.1
+        priority: 150
+        interface: vlan50
+        preempt: enabled
+        username: "{{ username }}"
+        password: "{{ password }}"
 
 
 # - nxos_interface_ospf:
