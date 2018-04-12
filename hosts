@@ -21,8 +21,19 @@ hq-sw2.kpsc.io
 [nexus-switch]
 192.168.49.10 user=ansible gather_facts=False
 
+[dc-switches]
+192.168.49.10 user=ansible gather_facts=False
+192.168.49.11 user=ansible gather_facts=False
+
+
 [lb]
 10.44.2.50 user=root
+10.44.2.51 user=root
+10.44.2.52 user=bob
+10.44.2.53 user=steve
+
+[neat]
+192.168.49.20 user=root
 
 [webservers]
 10.16.0.136 user=root

@@ -1,7 +1,7 @@
 ---
 
 - name: command testing
-  hosts: nexus-switch
+  hosts: dc-switches
   connection: local
   gather_facts: no
 
@@ -9,12 +9,6 @@
     - external_vars.yml
 
   tasks:
-
-    - nxos_command: 
-        commands: show version
-        username: "{{ username }}"
-        password: "{{ password }}"
-
     - name: Ensure lacp is enabled
       nxos_feature:
         feature: lacp
@@ -115,15 +109,15 @@
         username: "{{ username }}"
         password: "{{ password }}"
 
-    - name: Create an SVI for VLAN 50
+    - name: Create an SVI for VLAN 60
       nxos_interface:
-        interface: vlan50 
+        interface: vlan60 
         username: "{{ username }}"
         password: "{{ password }}"
 
-    - name: Ensure ipv4 address is configured on VLAN 50
+    - name: Ensure ipv4 address is configured on VLAN 60
       nxos_ip_interface:
-        interface: vlan50
+        interface: vlan60
         transport: nxapi
         version: v4
         state: present
@@ -134,10 +128,10 @@
 
     - name: Ensure HSRP is configured with following params on a SVI
       nxos_hsrp:
-        group: 50
+        group: 60
         vip: 10.1.60.1
         priority: 150
-        interface: vlan50
+        interface: vlan60
         preempt: enabled
         username: "{{ username }}"
         password: "{{ password }}"

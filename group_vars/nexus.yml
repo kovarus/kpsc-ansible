@@ -34,6 +34,7 @@ vlans:
   - { id: 19, name: db }
   - { id: 1000, name: vlan_1000 }
   - { id: 3000, name: dummy }
+  - { id: 1234, name: blargofoo }
 
 interfaces:
   - { intf: Ethernet1/1, switchport: "no switchport", ip: "10.101.101.1/30", state: "no shutdown" }

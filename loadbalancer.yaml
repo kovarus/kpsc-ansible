@@ -1,5 +1,5 @@
 ---
-- hosts: lb 
+- hosts: neat 
   remote_user: root
 
   vars:
@@ -10,5 +10,9 @@
         address: 127.0.0.2:8080
       - name: app3
         address: 127.0.0.3:8080
+      - name: app4  
+        address: 127.0.0.3:8080
+      - name: app4    
+        address: 127.0.0.4:8080
   roles:
     - ansible-role-haproxy
